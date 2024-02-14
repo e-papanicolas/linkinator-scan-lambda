@@ -1,17 +1,14 @@
 import * as cdk from 'aws-cdk-lib';
-import { Template, Match } from 'aws-cdk-lib/assertions';
+import { Template } from 'aws-cdk-lib/assertions';
 import * as LinkinatorScan from '../lib/linkinator-scan-stack';
 
-test('SQS Queue and SNS Topic Created', () => {
+test('Lambda Created', () => {
   const app = new cdk.App();
-  // WHEN
   const stack = new LinkinatorScan.LinkinatorScanStack(app, 'MyTestStack');
-  // THEN
 
   const template = Template.fromStack(stack);
 
-  template.hasResourceProperties('AWS::SQS::Queue', {
+  template.hasResourceProperties('AWS::Lambda::Function', {
     VisibilityTimeout: 300
   });
-  template.resourceCountIs('AWS::SNS::Topic', 1);
 });

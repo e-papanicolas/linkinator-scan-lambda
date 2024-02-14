@@ -1,19 +1,25 @@
 import { Duration, Stack, StackProps } from 'aws-cdk-lib';
-import * as sns from 'aws-cdk-lib/aws-sns';
-import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
-import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as lambdaNodeJs from 'aws-cdk-lib/aws-lambda-nodejs';
+// import * as events from 'aws-cdk-lib/aws-events';
+// import * as targets from 'aws-cdk-lib/aws-events-targets';
 import { Construct } from 'constructs';
 
 export class LinkinatorScanStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const queue = new sqs.Queue(this, 'LinkinatorScanQueue', {
-      visibilityTimeout: Duration.seconds(300)
+    const lambdaFn = new lambdaNodeJs.NodejsFunction(this, 'Singleton', {
+      entry: 'lambda/index.ts',
+      handler: 'index.handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      timeout: Duration.seconds(300),
     });
 
-    const topic = new sns.Topic(this, 'LinkinatorScanTopic');
+    // const cronJobRule = new events.Rule(this, 'Rule', {
+    //   schedule: events.Schedule.expression('cron(0 0 1 * *'),
+    // });
 
-    topic.addSubscription(new subs.SqsSubscription(queue));
+    // cronJobRule.addTarget(new targets.LambdaFunction(lambdaFn));
   }
 }
