@@ -1,17 +1,19 @@
 import { Duration, Stack, StackProps } from 'aws-cdk-lib';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 // import * as events from 'aws-cdk-lib/aws-events';
 // import * as targets from 'aws-cdk-lib/aws-events-targets';
 import { Construct } from 'constructs';
+import * as path from 'path';
 
 export class LinkinatorScanStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const lambdaFn = new lambda.Function(this, 'Singleton', {
-      code: lambda.Code.fromAsset('lambda'),
-      handler: 'index.handler',
-      runtime: lambda.Runtime.NODEJS_18_X,
+    const linkinatorFn = new NodejsFunction(this, 'LambdaHandler', {
+      entry: path.join(__dirname, `/../lambda/index.ts`),
+      handler: 'handler',
+      runtime: Runtime.NODEJS_18_X,
       timeout: Duration.seconds(300),
     });
 
