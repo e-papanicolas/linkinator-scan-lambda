@@ -1,8 +1,19 @@
 import { Handler } from "aws-cdk-lib/aws-lambda";
 import { LinkChecker } from "linkinator";
+import * as AWS from "aws-sdk";
+
+const SES_EMAIL_FROM = 'eleni.papanicolas@proton.me';
+const SES_EMAIL_TO = 'eleni.papanicolas@proton.me';
+
+interface LinkData {
+    passed: boolean;
+    linksScanned: number;
+    brokenLinksCount: number;
+    brokenLinks: {url: string, parent: string|undefined}[];
+}
 
 export const handler: Handler = async () => {
-    const returnData = await checkLinks();
+    const returnData: LinkData = await checkLinks();
 
     const response = {
         statusCode: 200,
@@ -12,6 +23,10 @@ export const handler: Handler = async () => {
         },
         body: JSON.stringify(returnData)
     };
+
+    if (!returnData.passed) {
+        await sendEmail(returnData);
+    }
 
     return response;
 }
@@ -45,3 +60,52 @@ const checkLinks = async () => {
         brokenLinks
     };
 };
+
+async function sendEmail(data: LinkData) {
+    const ses = new AWS.SES({region: 'us-east-1'});
+    const scanDate = new Date().toLocaleString();
+    await ses.sendEmail(sendEmailParams(data, scanDate)).promise();
+
+    return JSON.stringify({
+        body: {message: 'Email sent successfully 🎉🎉🎉'},
+        statusCode: 200,
+    });
+}
+
+function sendEmailParams({passed, linksScanned, brokenLinksCount, brokenLinks}: LinkData, scanDate: string) {
+    return {
+        Destination: {
+            ToAddresses: [SES_EMAIL_TO],
+        },
+        Message: {
+            Body: {
+                Html: {
+                    Charset: 'UTF-8',
+                    Data: getHtmlContent({passed, linksScanned, brokenLinksCount, brokenLinks}),
+                },
+            },
+            Subject: {
+                Charset: 'UTF-8',
+                Data: `Linkinator Report: ${scanDate}`,
+            },
+        },
+        Source: SES_EMAIL_FROM,
+    };
+}
+
+function getHtmlContent({passed, linksScanned, brokenLinksCount, brokenLinks}: LinkData) {
+    return `
+        <html>
+            <body>
+                <h1>Linkinator scan results 📬</h1>
+                <ul>
+                    <li style="font-size:18px">Status: <b>${passed}</b></li>
+                    <li style="font-size:18px">Links scanned: <b>${linksScanned}</b></li>
+                    <li style="font-size:18px">Broken links count: <b>${brokenLinksCount}</b></li>
+                </ul>
+                <h2>Broken links:</h2>
+                <p style="font-size:18px">${brokenLinks}</p>
+            </body>
+        </html>
+    `;
+}
