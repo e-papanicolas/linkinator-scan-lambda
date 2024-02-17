@@ -2,7 +2,7 @@ import { Handler } from "aws-cdk-lib/aws-lambda";
 import { LinkChecker } from "linkinator";
 import * as AWS from "aws-sdk";
 
-const SES_EMAIL_FROM = 'eleni.papanicolas@proton.me';
+const SES_EMAIL_FROM = 'elenipapanicolas@gmail.com';
 const SES_EMAIL_TO = 'eleni.papanicolas@proton.me';
 
 interface LinkData {
