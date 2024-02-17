@@ -97,15 +97,24 @@ const getHtmlContent = ({passed, linksScanned, brokenLinksCount, brokenLinks}: L
     return `
         <html>
             <body>
-                <h1>Linkinator scan results 📬</h1>
+                <h1>Linkinator scan results 👀</h1>
                 <ul>
-                    <li style="font-size:18px">Status: <b>${passed}</b></li>
+                    <li style="font-size:18px">Passed: <b>${passed}</b></li>
                     <li style="font-size:18px">Links scanned: <b>${linksScanned}</b></li>
-                    <li style="font-size:18px">Broken links count: <b>${brokenLinksCount}</b></li>
+                    <li style="font-size:18px">Broken links found: <b>${brokenLinksCount}</b></li>
                 </ul>
                 <h2>Broken links:</h2>
-                <p style="font-size:18px">${brokenLinks}</p>
+                ${mapBrokenLinks(brokenLinks)}
             </body>
         </html>
     `;
+}
+
+const mapBrokenLinks = (brokenLinks: {url: string, parent: string|undefined}[]) => {
+    return brokenLinks.map(link => {
+        return `<div>
+                    <p style="font-size:14px"><b>Broken link url:</b> <a href="${link.url}">${link.url}</a></p>
+                    <p style="font-size:14px">Found on CV website page: <a href="${link.parent}">${link.parent}</a></p>
+                </div>`
+    });
 }
