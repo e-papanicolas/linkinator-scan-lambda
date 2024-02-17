@@ -1,9 +1,22 @@
-# Welcome to your CDK TypeScript project
+# Clearviction Link Scan
 
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`LinkinatorScanStack`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+This is an AWS CDK application that invokes a Lambda function which runs a [linkinator](https://github.com/JustinBeckwith/linkinator) scan on the Clearviction website on a monthly schedule, and reports any broken links via SES.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Services used
+
+- AWS Lambda
+- AWS Simple Email Service (SES)
+- AWS Identity and Access Management (IAM)
+- AWS EventBridge Scheduler
+
+## To update
+
+1. Make changes
+1. Empty `dist` folder
+1. Run `npm run build`
+1. Run `cdk deploy`
+1. Test changes
+1. Push changes to github
 
 ## Useful commands
 
