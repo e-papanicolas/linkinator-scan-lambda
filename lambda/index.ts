@@ -61,7 +61,7 @@ const checkLinks = async () => {
     };
 };
 
-async function sendEmail(data: LinkData) {
+const sendEmail = async (data: LinkData) => {
     const ses = new AWS.SES({region: 'us-east-1'});
     const scanDate = new Date().toLocaleString();
     await ses.sendEmail(sendEmailParams(data, scanDate)).promise();
@@ -72,7 +72,7 @@ async function sendEmail(data: LinkData) {
     });
 }
 
-function sendEmailParams({passed, linksScanned, brokenLinksCount, brokenLinks}: LinkData, scanDate: string) {
+const sendEmailParams = ({passed, linksScanned, brokenLinksCount, brokenLinks}: LinkData, scanDate: string) => {
     return {
         Destination: {
             ToAddresses: [SES_EMAIL_TO],
@@ -93,7 +93,7 @@ function sendEmailParams({passed, linksScanned, brokenLinksCount, brokenLinks}: 
     };
 }
 
-function getHtmlContent({passed, linksScanned, brokenLinksCount, brokenLinks}: LinkData) {
+const getHtmlContent = ({passed, linksScanned, brokenLinksCount, brokenLinks}: LinkData) => {
     return `
         <html>
             <body>
