@@ -16,22 +16,33 @@ interface LinkData {
 }
 
 export const handler: Handler = async () => {
-    const returnData: LinkData = await checkLinks();
-
-    const response = {
-        statusCode: 200,
-        headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*"
-        },
-        body: JSON.stringify(returnData)
-    };
-
-    if (!returnData.passed) {
-        await sendEmail(returnData);
+    try {
+        const returnData: LinkData = await checkLinks();
+    
+        const response = {
+            statusCode: 200,
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+            },
+            body: JSON.stringify(returnData)
+        };
+    
+        if (!returnData.passed) {
+            await sendEmail(returnData);
+        }
+    
+        return response;
+    } catch (error) {
+        return {
+            statusCode: 500,
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+            },
+            body: JSON.stringify({ message: 'An error occurred while scanning the links', error })
+        }
     }
-
-    return response;
 }
 
 const checkLinks = async () => {
@@ -69,10 +80,7 @@ const sendEmail = async (data: LinkData) => {
     const scanDate = new Date().toLocaleString();
     await ses.sendEmail(sendEmailParams(data, scanDate)).promise();
 
-    return JSON.stringify({
-        body: {message: 'Email sent successfully 🎉🎉🎉'},
-        statusCode: 200,
-    });
+    return;
 }
 
 const sendEmailParams = ({passed, linksScanned, brokenLinksCount, brokenLinks}: LinkData, scanDate: string) => {
