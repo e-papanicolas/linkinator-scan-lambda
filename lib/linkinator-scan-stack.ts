@@ -30,6 +30,7 @@ export class LinkinatorScanStack extends Stack {
       }),
     );
 
+    // Timezone UTC
     const scheduleLambda = new events.Rule(this, "monthlyOnTheFirstDayRule", {
       schedule: events.Schedule.cron({day: '1', hour: '0', minute: '0'}),
     });
