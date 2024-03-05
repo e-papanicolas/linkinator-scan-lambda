@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-import * as cdk from 'aws-cdk-lib';
+import { App, Tags } from 'aws-cdk-lib';
 import { LinkinatorScanStack } from '../lib/linkinator-scan-stack';
 
-const app = new cdk.App();
-new LinkinatorScanStack(app, 'LinkinatorScanStack');
+
+const app = new App();
+const linkScanStack = new LinkinatorScanStack(app, 'LinkinatorScanStack');
+Tags.of(linkScanStack).add('project', 'link-scan');
