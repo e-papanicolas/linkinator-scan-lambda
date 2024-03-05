@@ -9,7 +9,10 @@ interface LinkData {
     passed: boolean;
     linksScanned: number;
     brokenLinksCount: number;
-    brokenLinks: {url: string, parent: string|undefined}[];
+    brokenLinks: {
+        url: string,
+        parent?: string
+    }[];
 }
 
 export const handler: Handler = async () => {
@@ -33,7 +36,7 @@ export const handler: Handler = async () => {
 
 const checkLinks = async () => {
     const checker = new LinkChecker();
-    const brokenLinks: {url: string, parent: string|undefined}[] = [];
+    const brokenLinks: LinkData["brokenLinks"] = [];
 
     checker.on('link', result => {
 
