@@ -10,8 +10,8 @@ interface LinkData {
     linksScanned: number;
     brokenLinksCount: number;
     brokenLinks: {
-        url: string,
-        parent?: string
+        url: string;
+        parent?: string;
     }[];
 }
 
@@ -113,7 +113,7 @@ const getHtmlContent = ({passed, linksScanned, brokenLinksCount, brokenLinks}: L
     `;
 }
 
-const mapBrokenLinks = (brokenLinks: {url: string, parent: string|undefined}[]) => {
+const mapBrokenLinks = (brokenLinks: LinkData["brokenLinks"]) => {
     return brokenLinks.map(link => {
         return `<div>
                     <p style="font-size:14px"><b>Broken link url:</b> <a href="${link.url}">${link.url}</a></p>
