@@ -23,8 +23,6 @@ export class LinkinatorScanStack extends Stack {
         effect: iam.Effect.ALLOW,
         actions: [
           'ses:SendEmail',
-          'ses:SendRawEmail',
-          'ses:SendTemplatedEmail',
         ],
         resources: ['*'],
       }),
@@ -42,6 +40,19 @@ export class LinkinatorScanStack extends Stack {
     );
 
     targets.addLambdaPermission(scheduleLambda, linkinatorFn);
+
+    // test version of the function
+    // const scheduleLambdaTest = new events.Rule(this, "every5MinutesRule", {
+    //   schedule: events.Schedule.cron({minute: '5'}),
+    // });
+
+    // scheduleLambdaTest.addTarget(
+    //   new targets.LambdaFunction(linkinatorFn, {
+    //     event: events.RuleTargetInput.fromObject({}),
+    //   })
+    // );
+
+    // targets.addLambdaPermission(scheduleLambdaTest, linkinatorFn);
     
   }
 }

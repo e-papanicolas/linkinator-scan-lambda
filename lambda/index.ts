@@ -1,6 +1,6 @@
 import { Handler } from "aws-cdk-lib/aws-lambda";
 import { LinkChecker } from "linkinator";
-import * as AWS from "aws-sdk";
+import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
 const SES_EMAIL_FROM = 'elenipapanicolas@gmail.com';
 const SES_EMAIL_TO = 'eleni.papanicolas@proton.me';
@@ -19,20 +19,11 @@ export const handler: Handler = async () => {
     try {
         const returnData: LinkData = await checkLinks();
     
-        const response = {
-            statusCode: 200,
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
-            },
-            body: JSON.stringify(returnData)
-        };
-    
         if (!returnData.passed) {
-            await sendEmail(returnData);
+            return await sendEmail(returnData);
         }
     
-        return response;
+        return;
     } catch (error) {
         return {
             statusCode: 500,
@@ -76,31 +67,34 @@ const checkLinks = async () => {
 };
 
 const sendEmail = async (data: LinkData) => {
-    const ses = new AWS.SES({region: 'us-east-1'});
+    const ses = new SESv2Client({region: 'us-east-1'});
     const scanDate = new Date().toLocaleString();
-    await ses.sendEmail(sendEmailParams(data, scanDate)).promise();
 
-    return;
+    const input = sendEmailParams(data, scanDate);
+    const sendEmailCommand = new SendEmailCommand(input);
+    return await ses.send(sendEmailCommand);
 }
 
 const sendEmailParams = ({passed, linksScanned, brokenLinksCount, brokenLinks}: LinkData, scanDate: string) => {
     return {
+        FromEmailAddress: SES_EMAIL_FROM,
         Destination: {
             ToAddresses: [SES_EMAIL_TO],
         },
-        Message: {
-            Body: {
-                Html: {
+        Content: {
+            Simple: {
+                Subject: {
                     Charset: 'UTF-8',
-                    Data: getHtmlContent({passed, linksScanned, brokenLinksCount, brokenLinks}),
+                    Data: `Linkinator Report: ${scanDate}`,
                 },
-            },
-            Subject: {
-                Charset: 'UTF-8',
-                Data: `Linkinator Report: ${scanDate}`,
-            },
-        },
-        Source: SES_EMAIL_FROM,
+                Body: {
+                    Html: {
+                        Charset: 'UTF-8',
+                        Data: getHtmlContent({passed, linksScanned, brokenLinksCount, brokenLinks}),
+                    },
+                },
+            }
+        }
     };
 }
 
